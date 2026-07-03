@@ -11,7 +11,7 @@ inventory = []
 def get_inventory():
     return jsonify(inventory), 200
 
-#Get a single product
+#Get a single item
 @app.route('/inventory/<int:item_id>', methods= ["GET"])
 def get_product(item_id):
     for item in inventory:
@@ -24,8 +24,7 @@ def get_product(item_id):
 @app.route('/inventory', methods=["POST"])
 def add_product():
     data = request.get_json()
-    new_id = max((item.id for item in inventory), default=0) + 1
-
+    new_id = max((item["id"] for item in inventory), default=0) + 1
     item = {
         "id": new_id,
         "name": data["name"],
@@ -41,21 +40,24 @@ def add_product():
 
     return jsonify(item), 201
 
-#Update product
-@app.route('inventory/<int:item_id>', methods=["PATCH"])
+#Update item
+@app.route('/inventory/<int:item_id>', methods=["PATCH"])
 def update_product(item_id):
     data = request.get_json()
 
     for item in inventory:
         if item["id"] == item_id:
-            item.upadte(data)
+            item.update(data)
             return jsonify(item)
         
     return("Not found", 404)
 
-#DElete product
-@app.route("/items/<int:item_id>", methods=["DELETE"])
+#DElete item
+@app.route("/inventory/<int:item_id>", methods=["DELETE"])
 def delete_item(item_id):
     global inventory
     inventory = [i for i in inventory if i["id"] != item_id]
     return jsonify({"message": "deleted"})
+
+if __name__ == "__main__":
+    app.run(debug=True)
