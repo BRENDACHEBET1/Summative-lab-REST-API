@@ -10,3 +10,13 @@ products = []
 @app.route('/products', methods = ["GET"])
 def get_products():
     return jsonify(products), 200
+
+#Get a single product
+@app.route('/products/<int: id>', methods= ["GET"])
+def get_product(id):
+    for p in products:
+        if p["id"] == id:
+            return jsonify(p), 200
+        
+    return jsonify({"error": "Product not found"}), 404
+
