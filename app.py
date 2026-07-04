@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from external_api import fetch_by_barcode, fetch_by_name
 
 app = Flask(__name__)
 
@@ -24,17 +25,33 @@ def get_product(item_id):
 @app.route('/inventory', methods=["POST"])
 def add_product():
     data = request.get_json()
+
+    #Determine how to search for the product
+    if data.get("barcode"):
+        product = fetch_by_barcode(data["barcode"])
+    elif data.get("name"):
+        product = fetch_by_name(data["name"])
+    else:
+        return jsonify({"message": "Please provide a barcode or product name"}), 400
+
+    # Check if the product was found
+    if product is None:
+        return jsonify({"message": "Product not found"}), 404
+    
+    #Generate new id
     new_id = max((item["id"] for item in inventory), default=0) + 1
     item = {
         "id": new_id,
-        "name": data["name"],
+        "name": data.get("name"),  
         "barcode": data.get("barcode"),
         "quantity": data["quantity"],
         "price": data["price"],
-        "category": data["category"],
-        "source": "manual"
+        "source": "OpenFoodFacts"
     }
 
+    #Enhance the inventory with API data
+    item.update(product)
+    #Save the enhanced item
     inventory.append(item)
     
 
