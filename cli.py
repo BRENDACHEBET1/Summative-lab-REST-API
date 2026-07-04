@@ -16,8 +16,26 @@ while True:
     # View Inventory
     if choice == "1":
         response = requests.get(f"{API_BASE}/inventory")
-        print(response.json())
 
+        if response.status_code == 200:
+            items = response.json()
+
+            if not items:
+                print("Inventory is empty.")
+            else:
+                for item in items:
+                    print(f"ID: {item['id']}")
+                    print("-" * 40)
+                    print(f"Name: {item['name']}")
+                    print(f"Brand: {item.get('brand', 'N/A')}")
+                    print(f"Category: {item.get('category', 'N/A').split(',')[0].replace('en:', '')}")
+                    print(f"Barcode: {item.get('barcode', 'N/A')}")
+                    print(f"Quantity: {item['quantity']}")
+                    print(f"Price: {item['price']}")
+                    print(f"Source: {item['source']}")
+                   
+        else:
+            print("Error retrieving inventory.")
     # Add Product
     elif choice == "2":
         barcode = input("Barcode (press Enter if unknown): ")

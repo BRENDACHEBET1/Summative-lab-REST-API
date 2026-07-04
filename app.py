@@ -26,7 +26,7 @@ def get_product(item_id):
 def add_product():
     data = request.get_json()
 
-    #Determine how to search for the product
+    # search for the product
     if data.get("barcode"):
         product = fetch_by_barcode(data["barcode"])
     elif data.get("name"):
@@ -34,23 +34,26 @@ def add_product():
     else:
         return jsonify({"message": "Please provide a barcode or product name"}), 400
 
-    # Check if the product was found
-    if product is None:
-        return jsonify({"message": "Product not found"}), 404
+   
     
     #Generate new id
     new_id = max((item["id"] for item in inventory), default=0) + 1
+    
+    #Create item
     item = {
         "id": new_id,
         "name": data.get("name"),  
         "barcode": data.get("barcode"),
         "quantity": data["quantity"],
         "price": data["price"],
-        "source": "OpenFoodFacts"
+        "source": "Manual"
     }
 
     #Enhance the inventory with API data
-    item.update(product)
+    # If OpenFoodFacts found the product, enrich it
+    if product:
+        item.update(product)
+        item["source"] = "OpenFoodFacts"
     #Save the enhanced item
     inventory.append(item)
     
