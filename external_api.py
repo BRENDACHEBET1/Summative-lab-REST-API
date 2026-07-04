@@ -1,13 +1,23 @@
 import requests
 
 BASE_URL = "https://world.openfoodfacts.org"
+HEADERS = {
+    "User-Agent": "InventoryApp/1.0"
+}
 
 #Fetch product details using a barcode 
 def fetch_by_barcode(barcode):
     url = f"{BASE_URL}/api/v2/product/{barcode}.json"
 
     try:
-        response = requests.get(url)
+        
+        response = requests.get(
+        url,
+        headers=HEADERS,
+        timeout=10
+    )
+
+       
         data = response.json()
 
         if data.get("status") == 1:
@@ -20,10 +30,11 @@ def fetch_by_barcode(barcode):
                 "image": product.get("image_url")
             }
 
-        return {"message": "Product not found"}
+        return None
 
-    except requests.RequestException:
-        return {"message": "Unable to connect to OpenFoodFacts API"}
+    except requests.RequestException as e:
+         print("Error:", e)          
+         return None
 
 #Fetch by name
 def fetch_by_name(name):
@@ -36,8 +47,13 @@ def fetch_by_name(name):
     }
 
     try:
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=HEADERS, timeout=10)
+        print("Status Code:", response.status_code)
+        print(response.text)
+        response.raise_for_status()
+
         data = response.json()
+
 
         products = data.get("products")
 
@@ -51,7 +67,8 @@ def fetch_by_name(name):
                 "image": product.get("image_url")
             }
 
-        return {"message": "Product not found"}
+        return None
 
-    except requests.RequestException:
-        return {"message": "Unable to connect to OpenFoodFacts API"}
+    except Exception as e:
+        print("Error:", e)
+        return None
