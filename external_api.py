@@ -48,20 +48,25 @@ def fetch_by_name(name):
 
     try:
         response = requests.get(url, params=params, headers=HEADERS, timeout=10)
-        print("Status Code:", response.status_code)
-        print(response.text)
+        
         response.raise_for_status()
 
         data = response.json()
-
+        print(data.get("products"))
 
         products = data.get("products")
+        print("Status Code:", response.status_code)
+        print(response.text)
 
         if products:
             product = products[0]
 
             return {
-                "name": product.get("product_name"),
+                "name": (product.get("product_name")
+                        or product.get("generic_name")
+                        or product.get("abbreviated_product_name")
+                        or "Unknown Product"
+                 ),
                 "brand": product.get("brands"),
                 "category": product.get("categories"),
                 "image": product.get("image_url")
