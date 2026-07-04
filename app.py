@@ -78,6 +78,23 @@ def delete_item(item_id):
 
 
 
+#Finding a product
+@app.route("/search", methods=["GET"])
+def search_product():
+    barcode = request.args.get("barcode")
+    name = request.args.get("name")
+
+    if barcode:
+        product = fetch_by_barcode(barcode)
+    elif name:
+        product = fetch_by_name(name)
+    else:
+        return jsonify({"message": "Please provide a barcode or product name"}), 400
+
+    if product is None:
+        return jsonify({"message": "Product not found"}), 404
+
+    return jsonify(product), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
