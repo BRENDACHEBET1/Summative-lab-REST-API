@@ -4,7 +4,63 @@ from external_api import fetch_by_barcode, fetch_by_name
 app = Flask(__name__)
 
 #Simulate in memorry data using a list
-inventory = []
+inventory = [
+    {
+        "id": 1,
+        "name": "Nutella",
+        "brand": "Ferrero",
+        "category": "Chocolate spreads",
+        "barcode": "3017620422003",
+        "quantity": 20,
+        "price": 500.0,
+        "image": "https://images.openfoodfacts.org/images/products/301/762/042/2003/front_en.879.400.jpg",
+        "source": "OpenFoodFacts"
+    },
+    {
+        "id": 2,
+        "name": "Coca-Cola",
+        "brand": "The Coca-Cola Company",
+        "category": "Soft drinks",
+        "barcode": "5449000000996",
+        "quantity": 50,
+        "price": 120.0,
+        "image": "https://images.openfoodfacts.org/images/products/544/900/000/0996/front_en.500.400.jpg",
+        "source": "OpenFoodFacts"
+    },
+    {
+        "id": 3,
+        "name": "Oreo",
+        "brand": "Mondelez",
+        "category": "Biscuits",
+        "barcode": "7622210449283",
+        "quantity": 35,
+        "price": 180.0,
+        "image": "https://images.openfoodfacts.org/images/products/762/221/044/9283/front_en.200.400.jpg",
+        "source": "OpenFoodFacts"
+    },
+    {
+        "id": 4,
+        "name": "Milk",
+        "brand": "Brookside",
+        "category": "Dairy",
+        "barcode": "6001009000012",
+        "quantity": 15,
+        "price": 75.0,
+        "image": "",
+        "source": "Manual"
+    },
+    {
+        "id": 5,
+        "name": "Bread",
+        "brand": "Supa Loaf",
+        "category": "Bakery",
+        "barcode": "",
+        "quantity": 25,
+        "price": 65.0,
+        "image": "",
+        "source": "Manual"
+    }
+]
 
 #CRUD Operations
 #GET all inventory
@@ -80,18 +136,16 @@ def update_product(item_id):
 
     return jsonify({"error": "Product not found"}), 404
 
-
 #DElete item
 @app.route("/inventory/<int:item_id>", methods=["DELETE"])
-def delete_item(item_id):
-    global inventory
-    
+def delete_product(item_id):
     for item in inventory:
         if item["id"] == item_id:
             inventory.remove(item)
             return jsonify({"message": "Product deleted"}), 200
 
-    return jsonify({"error": "Product not found"}), 404
+    return jsonify({"message": "Product not found"}), 404
+
 
 
 
