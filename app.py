@@ -119,12 +119,22 @@ def add_product():
 def update_product(item_id):
     data = request.get_json()
 
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    allowed_fields = ["name", "barcode", "quantity", "price", "category"]
+
+
     for item in inventory:
         if item["id"] == item_id:
-            item.update(data)
-            return jsonify(item)
-        
-    return("Not found", 404)
+
+            for key, value in data.items():
+                if key in allowed_fields:
+                    item[key] = value
+
+            return jsonify(item), 200
+
+    return jsonify({"error": "Product not found"}), 404
 
 #DElete item
 @app.route("/inventory/<int:item_id>", methods=["DELETE"])
@@ -135,6 +145,7 @@ def delete_product(item_id):
             return jsonify({"message": "Product deleted"}), 200
 
     return jsonify({"message": "Product not found"}), 404
+
 
 
 
