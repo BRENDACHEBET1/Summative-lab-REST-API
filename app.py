@@ -33,8 +33,6 @@ def add_product():
         product = fetch_by_name(data["name"])
     else:
         return jsonify({"message": "Please provide a barcode or product name"}), 400
-
-   
     
     #Generate new id
     new_id = max((item["id"] for item in inventory), default=0) + 1
