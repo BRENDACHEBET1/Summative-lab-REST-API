@@ -149,7 +149,7 @@ def delete_product(item_id):
 
 
 
-#Finding a product
+#Finding a product using either barcode or name
 @app.route("/search", methods=["GET"])
 def search_product():
     barcode = request.args.get("barcode")

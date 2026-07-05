@@ -83,7 +83,7 @@ while True:
         item_id = input("Product ID: ")
 
         response = requests.delete(f"{API_BASE}/inventory/{item_id}")
-        print(response.json())
+        print(response.json()["message"])
 
     # Find Product
     elif choice == "5":
