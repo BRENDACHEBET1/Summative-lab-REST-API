@@ -3,130 +3,71 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import pytest
-from app import app, inventory
+from unittest.mock import patch
+from external_api import fetch_by_barcode, fetch_by_name
+
+from unittest.mock import patch
+from external_api import fetch_by_barcode, fetch_by_name
 
 
-@pytest.fixture
-def client():
-    app.config["TESTING"] = True
+@patch("external_api.requests.get")
+def test_fetch_by_barcode(mock_get):
 
-    with app.test_client() as client:
-        inventory.clear()
-        yield client
-
-
-def test_get_inventory(client):
-    response = client.get("/inventory")
-
-    assert response.status_code == 200
-    assert response.get_json() == []
-
-
-def test_add_product(client):
-    response = client.post(
-        "/inventory",
-        json={
-            "name": "Milk",
-            "quantity": 20,
-            "price": 150
+    mock_get.return_value.json.return_value = {
+        "status": 1,
+        "product": {
+            "product_name": "Nutella",
+            "brands": "Ferrero",
+            "categories": "Chocolate",
+            "image_url": "image.jpg"
         }
-    )
+    }
 
-    assert response.status_code == 201
-    assert response.get_json()["quantity"] == 20
+    product = fetch_by_barcode("3017620422003")
 
-
-def test_update_product(client):
-    inventory.append({
-        "id": 1,
-        "name": "Milk",
-        "quantity": 20,
-        "price": 150
-    })
-
-    response = client.patch(
-        "/inventory/1",
-        json={
-            "price": 200
-        }
-    )
-
-    assert response.status_code == 200
-    assert response.get_json()["price"] == 200
+    assert product["name"] == "Nutella"
+    assert product["brand"] == "Ferrero"
 
 
-def test_delete_product(client):
-    inventory.append({
-        "id": 1,
-        "name": "Milk",
-        "quantity": 20,
-        "price": 150
-    })
+@patch("external_api.requests.get")
+def test_barcode_product_not_found(mock_get):
 
-    response = client.delete("/inventory/1")
+    mock_get.return_value.json.return_value = {
+        "status": 0
+    }
 
-import pytest
-from app import app, inventory
+    product = fetch_by_barcode("111111")
+
+    assert product is None
 
 
-@pytest.fixture
-def client():
-    app.config["TESTING"] = True
+@patch("external_api.requests.get")
+def test_fetch_by_name(mock_get):
 
-    with app.test_client() as client:
-        inventory.clear()
-        yield client
+    mock_get.return_value.json.return_value = {
+        "products": [
+            {
+                "product_name": "Nutella",
+                "brands": "Ferrero",
+                "categories": "Chocolate",
+                "image_url": "image.jpg"
+            }
+        ]
+    }
 
+    product = fetch_by_name("Nutella")
 
-def test_get_inventory(client):
-    response = client.get("/inventory")
-
-    assert response.status_code == 200
-    assert response.get_json() == []
-
-
-def test_add_product(client):
-    response = client.post(
-        "/inventory",
-        json={
-            "name": "Milk",
-            "quantity": 20,
-            "price": 150
-        }
-    )
-
-    assert response.status_code == 201
-    assert response.get_json()["quantity"] == 20
+    assert product["name"] == "Nutella"
+    assert product["brand"] == "Ferrero"
 
 
-def test_update_product(client):
-    inventory.append({
-        "id": 1,
-        "name": "Milk",
-        "quantity": 20,
-        "price": 150
-    })
+@patch("external_api.requests.get")
+def test_name_product_not_found(mock_get):
 
-    response = client.patch(
-        "/inventory/1",
-        json={
-            "price": 200
-        }
-    )
+    mock_get.return_value.json.return_value = {
+        "products": []
+    }
 
-    assert response.status_code == 200
-    assert response.get_json()["price"] == 200
+    product = fetch_by_name("Unknown Product")
 
-
-def test_delete_product(client):
-    inventory.append({
-        "id": 1,
-        "name": "Milk",
-        "quantity": 20,
-        "price": 150
-    })
-
-    response = client.delete("/inventory/1")
-
-    assert response.status_code == 200
+    assert product is None
