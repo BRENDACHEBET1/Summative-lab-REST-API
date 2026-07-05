@@ -62,13 +62,10 @@ def fetch_by_name(name):
             product = products[0]
 
             return {
-                "name": (product.get("product_name")
-                        or product.get("generic_name")
-                        or product.get("abbreviated_product_name")
-                        or "Unknown Product"
-                 ),
+                "name": product.get("product_name") or name,
                 "brand": product.get("brands"),
                 "category": product.get("categories"),
+                "barcode": product.get("code"),
                 "image": product.get("image_url")
             }
 
